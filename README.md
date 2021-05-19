@@ -7,3 +7,11 @@ instruct Word and Excel to open and close documents
 
 * create new MFC Application project
 * add > class > MFC class from Typelib
+
+* for Word
+  * Appliction
+  * Document
+
+* for Excel
+  * Appliction
+  * Workbook
