@@ -23,3 +23,6 @@ instruct Word and Excel to open and close documents
 * debug
   * additional dependencies: `uafxcwd.lib;Libcmtd.lib`   
   * ignore specific default libraries: `uafxcwd.lib;Libcmtd.lib`
+
+* other
+  * `uxtheme.lib;windowscodecs.lib` 
