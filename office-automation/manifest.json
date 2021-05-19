@@ -1,0 +1,11 @@
+{
+    "name": "office-automation",
+    "id": 20000,
+    "commands": [
+        {
+            "theme": "office-automation",
+            "syntax": "office automation(&J):J",
+            "threadSafe": true
+        }
+    ]
+}
