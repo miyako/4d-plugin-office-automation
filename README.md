@@ -46,28 +46,28 @@ On windows, `CreateDispatch` creates a new dispath. need to search for running i
 
 ```c
 COleException e;
-		WordApplication wdApp;
+WordApplication wdApp;
 
-		bool isAvailable = false;
+bool isAvailable = false;
 
-		CLSID clsid;
-		CLSIDFromProgID(L"Word.Application", &clsid);
+CLSID clsid;
+CLSIDFromProgID(L"Word.Application", &clsid);
 
-		IUnknown *pUnknown;
-		HRESULT hr = GetActiveObject(clsid, NULL, (IUnknown**)&pUnknown);
-		if (SUCCEEDED(hr)) {
-			//there is a running instance
-			// Get IDispatch interface for Automation...
-			IDispatch *pDispatch;
-			hr = pUnknown->QueryInterface(IID_IDispatch, (void **)&pDispatch);
-			if (SUCCEEDED(hr)) {
-				wdApp.AttachDispatch(pDispatch, TRUE);
-				isAvailable = true;
-			}
-		}
-		else {
-			if (wdApp.CreateDispatch(L"Word.Application", &e)) {
-				isAvailable = true;
-			}
-		}
+IUnknown *pUnknown;
+HRESULT hr = GetActiveObject(clsid, NULL, (IUnknown**)&pUnknown);
+if (SUCCEEDED(hr)) {
+	//there is a running instance
+	// Get IDispatch interface for Automation...
+	IDispatch *pDispatch;
+	hr = pUnknown->QueryInterface(IID_IDispatch, (void **)&pDispatch);
+	if (SUCCEEDED(hr)) {
+		wdApp.AttachDispatch(pDispatch, TRUE);
+		isAvailable = true;
+	}
+	}
+	else {
+		if (wdApp.CreateDispatch(L"Word.Application", &e)) {
+		isAvailable = true;
+	}
+}
 ```
