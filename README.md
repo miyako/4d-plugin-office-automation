@@ -71,3 +71,9 @@ if (SUCCEEDED(hr)) {
 	}
 }
 ```
+
+On Mac, the name of a Word document is its file name.
+
+On Windows, it is localised serial, e.g. "文書 1". depending on the options passed to [Open](https://docs.microsoft.com/en-us/office/vba/api/word.documents.open).
+
+in particular, `OpenAndRepair` should  be `False` to keep the original name and path.
