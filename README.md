@@ -18,8 +18,8 @@ instruct Word and Excel to open and close documents
 
 * release
   * additional dependencies: `uafxcw.lib;Libcmt.lib`
-  * ignore default libraries: `uafxcw.lib;Libcmt.lib` 
+  * ignore specific default libraries: `uafxcw.lib;Libcmt.lib` 
 
 * debug
   * additional dependencies: `uafxcwd.lib;Libcmtd.lib`   
-  * ignore default libraries: `uafxcwd.lib;Libcmtd.lib`
+  * ignore specific default libraries: `uafxcwd.lib;Libcmtd.lib`
