@@ -9,9 +9,9 @@ instruct Word and Excel to open and close documents
 * add > class > MFC class from Typelib
 
 * for Word
-  * Appliction
-  * Document
+  * Appliction (rename: `WordAppliction`)
+  * Document (rename: `WordDocument`)
 
 * for Excel
-  * Appliction
-  * Workbook
+  * Appliction (rename: `ExcelAppliction`)
+  * Workbook (rename: `ExcelWorkbook`)
