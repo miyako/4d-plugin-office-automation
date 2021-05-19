@@ -17,7 +17,7 @@ instruct Word and Excel to open and close documents
   * Workbook (rename: `ExcelWorkbook`)
 
 * release
-  * additional dependencies: `uafxcw.lib;Libcmt.lib;`
+  * additional dependencies: `uafxcw.lib;Libcmt.lib`
   * ignore default libraries: `uafxcw.lib;Libcmt.lib` 
 
 * debug
