@@ -16,7 +16,7 @@ $params.command:="open"
 $status:=office automation ($params)
 ```
 
-* Close Word document
+* Save and close Word document
 
 ```4d
 $file:=Folder(fk resources folder).file("テスト.docx")
@@ -42,7 +42,7 @@ $params.command:="open"
 $status:=office automation ($params)
 ```
 
-* Close Excel document
+* Save and close Excel document
 
 ```4d
 $file:=Folder(fk resources folder).file("テスト.xlsx")
