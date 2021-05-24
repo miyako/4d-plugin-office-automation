@@ -3,8 +3,8 @@ instruct Word and Excel to open and close documents
 
 ### Mac
 
-* create header files
-* 
+* create header file from app
+
 ```
 sdef Word.app > word.sdef
 sdp --basename Word -fh Word.sdef Word.h
