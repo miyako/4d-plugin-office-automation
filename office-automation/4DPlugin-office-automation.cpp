@@ -212,29 +212,13 @@ static bool sb_tell_excel_to_open(CUTF8String& _path,
     @autoreleasepool {
     
         NSString *path  = [NSString stringWithUTF8String:(const char *)_path .c_str()];
-        NSString *pass1 = [NSString stringWithUTF8String:(const char *)_pass1.c_str()];
-        NSString *pass2 = [NSString stringWithUTF8String:(const char *)_pass2.c_str()];
-        
         ExcelApplication *application = getApp(@"com.microsoft.Excel");
         
         if(application) {
             
             NSURL *url = copyUrl(path);
-
-//            [application open:url];
             
-            [application openWorkbookWorkbookFileName:[url path]
-                                          updateLinks:ExcelMyUDateLinksUpdateRemoteAndExternalLinks
-                                             readOnly:NO
-                                               format:ExcelMyODelimiterTabDelimiter
-                                             password:(NSString *)pass1
-                                writeReservedPassword:(NSString *)pass2
-                            ignoreReadOnlyRecommended:YES origin:ExcelXlPlatformMacintosh
-                                            delimiter:@"\r\n"
-                                             editable:YES
-                                               notify:NO
-                                            converter:0
-                                             addToMru:YES];
+            [application open:url];
             
             [url release];
             
@@ -340,33 +324,29 @@ static bool sb_tell_excel_to_close(CUTF8String& _name, CUTF8String& _path) {
             for(ExcelWorkbook *document in matchingDocuments) {
                 
                 NSURL *url = nil;
-                                
+                
+                /* [document file] */
+                
                 if(_path.length()) {
                     NSString *path = [NSString stringWithUTF8String:(const char *)_path.c_str()];
                     url = copyUrl(path);
-                }else{
-                    //save in current location
                 }
                 
-                [document closeSaving:ExcelSaveOptionsYes savingIn:url];
+                if(!url) {
+                    NSURL *tempUrl = temporaryDirectory();
+                    url = [[tempUrl URLByAppendingPathComponent:sanitizeFileName([document name])] retain];
+                }
                 
-                /*
-                 if(!url) {
-                     NSURL *tempUrl = temporaryDirectory();
-                     url = [[tempUrl URLByAppendingPathComponent:sanitizeFileName([document name])] retain];
-                 }
-                 */
-
                 if(url) {
                     
+                    [document closeSaving:ExcelSaveOptionsYes savingIn:url];
                     NSString *savePath = copyPath(url);
                     _path = (const uint8_t *)[savePath UTF8String];
                     [savePath release];
                     [url release];
-  
+                    
+                    success = true;
                 }
-                
-                success = true;
             }
         }
     }
@@ -502,32 +482,28 @@ static bool sb_tell_word_to_close(CUTF8String& _name, CUTF8String& _path) {
 
                 NSURL *url = nil;
                 
+                /* [document file] */
+                
                 if(_path.length()) {
                     NSString *path = [NSString stringWithUTF8String:(const char *)_path.c_str()];
                     url = copyUrl(path);
-                }else{
-                    //save in current location
                 }
                 
-                [document closeSaving:WordSaveOptionsYes savingIn:url];
-                
-                /*
-                 if(!url) {
-                     NSURL *tempUrl = temporaryDirectory();
-                     url = [[tempUrl URLByAppendingPathComponent:sanitizeFileName([document name])] retain];
-                 }
-                 */
+                if(!url) {
+                    NSURL *tempUrl = temporaryDirectory();
+                    url = [[tempUrl URLByAppendingPathComponent:sanitizeFileName([document name])] retain];
+                }
                 
                 if(url) {
-
+                    
+                    [document closeSaving:WordSaveOptionsYes savingIn:url];
                     NSString *savePath = copyPath(url);
                     _path = (const uint8_t *)[savePath UTF8String];
                     [savePath release];
                     [url release];
-  
+                    
+                    success = true;
                 }
-                
-                success = true;
             }
         }
     }
@@ -768,13 +744,21 @@ void office_automation(PA_PluginParameters params) {
                 switch (command) {
                     case office_command_close:
                         if(sb_tell_excel_to_close(_name, _path)) {
-                            ob_set_s(status, L"path", (const char *)_path.c_str());
+#if VERSIONMAC
+							ob_set_s(status, L"path", (const char *)_path.c_str());
+#else
+							ob_set_a(status, L"path", (const wchar_t *)_path.c_str());
+#endif
                             ob_set_b(status, L"success", true);
                         }
                         break;
                     case office_command_open:
                         if(sb_tell_excel_to_open(_path, _pass1, _pass2)) {
-                            ob_set_s(status, L"path", (const char *)_path.c_str());
+#if VERSIONMAC
+							ob_set_s(status, L"path", (const char *)_path.c_str());
+#else
+							ob_set_a(status, L"path", (const wchar_t *)_path.c_str());
+#endif
                             ob_set_b(status, L"success", true);
                         }
                         break;
@@ -787,13 +771,21 @@ void office_automation(PA_PluginParameters params) {
                 switch (command) {
                     case office_command_close:
                         if(sb_tell_word_to_close(_name, _path)) {
-                            ob_set_s(status, L"path", (const char *)_path.c_str());
+#if VERSIONMAC
+							ob_set_s(status, L"path", (const char *)_path.c_str());
+#else
+							ob_set_a(status, L"path", (const wchar_t *)_path.c_str());
+#endif
                             ob_set_b(status, L"success", true);
                         }
                         break;
                     case office_command_open:
                         if(sb_tell_word_to_open(_name, _path, _pass1, _pass2, _pass3, _pass4)) {
+#if VERSIONMAC
                             ob_set_s(status, L"path", (const char *)_path.c_str());
+#else
+							ob_set_a(status, L"path", (const wchar_t *)_path.c_str());
+#endif
                             ob_set_b(status, L"success", true);
                         }
                         break;
