@@ -1,6 +1,60 @@
 # 4d-plugin-office-automation
 instruct Word and Excel to open and close documents
 
+### Examples
+
+* Open Word document
+
+```4d
+$file:=Folder(fk resources folder).file("テスト.docx")
+
+$params:=New object
+$params.app:="word"
+$params.path:=$file.platformPath  //if omitted, save in temporary folder (mac)
+$params.command:="open"
+
+$status:=office automation ($params)
+```
+
+* Close Word document
+
+```4d
+$file:=Folder(fk resources folder).file("テスト.docx")
+
+$params:=New object
+$params.app:="word"
+$params.command:="close"
+$params.name:=$file.name+$file.extension  //specify the name, not a path
+
+$status:=office automation ($params)
+```
+
+* Open Excel document
+
+```4d
+$file:=Folder(fk resources folder).file("テスト.xlsx")
+
+$params:=New object
+$params.app:="excel"
+$params.path:=$file.platformPath  //if omitted, save in temporary folder (mac)
+$params.command:="open"
+
+$status:=office automation ($params)
+```
+
+* Close Excel document
+
+```4d
+$file:=Folder(fk resources folder).file("テスト.xlsx")
+
+$params:=New object
+$params.app:="excel"
+$params.command:="close"
+$params.name:=$file.name+$file.extension  //specify the name, not a path
+
+$status:=office automation ($params)
+```
+
 ### Mac
 
 * create header file from app
