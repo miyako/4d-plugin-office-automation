@@ -1,6 +1,15 @@
 # 4d-plugin-office-automation
 instruct Word and Excel to open and close documents
 
+### Mac
+
+* create header files
+* 
+```
+sdef Word.app > word.sdef
+sdp --basename Word -fh Word.sdef Word.h
+```
+
 ### Windows
 
 [How to use a type library for Office Automation from Visual C++.NET](https://docs.microsoft.com/en-us/previous-versions/office/troubleshoot/office-developer/use-type-library-for-office-from-visual-c-net)
@@ -42,7 +51,7 @@ remove
 
 ### Issues 
 
-On windows, `CreateDispatch` creates a new dispath. need to search for running instances first.
+On windows, `CreateDispatch` creates a new dispatch. need to search for running instances first.
 
 ```c
 COleException e;
