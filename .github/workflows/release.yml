@@ -82,6 +82,24 @@ jobs:
       - name: setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
+      # The plugin uses MFC (COleDispatchDriver wrappers for Word/Excel), and the
+      # runner image's Visual Studio does not include the ATL/MFC component.
+      - name: install Visual C++ ATL/MFC
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vsPath = & $vswhere -latest -products * -property installationPath
+          if (-not $vsPath) { throw "Visual Studio not found" }
+          $installer = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
+          $p = Start-Process -FilePath $installer -Wait -PassThru -NoNewWindow -ArgumentList @(
+            'modify', '--installPath', "`"$vsPath`"",
+            '--add', 'Microsoft.VisualStudio.Component.VC.ATLMFC',
+            '--quiet', '--norestart', '--nocache')
+          if ($p.ExitCode -ne 0 -and $p.ExitCode -ne 3010) { throw "vs_installer exited $($p.ExitCode)" }
+          $afx = Get-ChildItem -Path "$vsPath\VC\Tools\MSVC" -Recurse -Filter afxwin.h -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $afx) { throw "afxwin.h still missing after installing ATL/MFC" }
+          Write-Host "MFC headers: $($afx.FullName)"
+
       - name: clean stale outputs
         shell: pwsh
         run: |
