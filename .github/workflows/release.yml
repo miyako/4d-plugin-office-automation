@@ -99,6 +99,13 @@ jobs:
           $afx = Get-ChildItem -Path "$vsPath\VC\Tools\MSVC" -Recurse -Filter afxwin.h -ErrorAction SilentlyContinue | Select-Object -First 1
           if (-not $afx) { throw "afxwin.h still missing after installing ATL/MFC" }
           Write-Host "MFC headers: $($afx.FullName)"
+          # The ATLMFC component installs into the image's default MSVC (e.g.
+          # 14.51 = v145 on VS 18), not the older v143 (14.44) also present, so
+          # build with the toolset whose MSVC folder actually has MFC.
+          $msvc = [version]($afx.FullName -replace '.*\\MSVC\\([0-9.]+)\\.*', '$1')
+          $toolset = if ($msvc.Minor -ge 50) { 'v145' } else { 'v143' }
+          Write-Host "MSVC $msvc -> PlatformToolset $toolset"
+          "PLATFORM_TOOLSET=$toolset" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: clean stale outputs
         shell: pwsh
@@ -109,14 +116,14 @@ jobs:
           Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$base/Plugins/Default"
           Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "Objs"
 
-      # GitHub-hosted windows-latest ships VS2022 (v143 toolset) but not the
-      # legacy v140 toolset the project may be pinned to, so we override it on
-      # the command line rather than requiring an extra VS component install.
+      # The project is pinned to the legacy v140 toolset, which the runner lacks,
+      # so override it on the command line with the toolset that has MFC
+      # (PLATFORM_TOOLSET, set by the ATL/MFC step).
       # Same for WindowsTargetPlatformVersion=8.1 -> 10.0
       - name: build x64
         shell: cmd
         run: |
-          msbuild "%PRODUCT_NAME%.sln" /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 /p:WindowsTargetPlatformVersion=10.0 /m
+          msbuild "%PRODUCT_NAME%.sln" /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=%PLATFORM_TOOLSET% /p:WindowsTargetPlatformVersion=10.0 /m
 
       - name: normalize windows output to canonical case
         shell: pwsh
