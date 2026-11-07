@@ -17,18 +17,15 @@
 /*
  MFC (afxwin.h, via stdafx.h) must be the first header to include
  <windows.h>, and 4DPlugin-JSON.h includes <winsock2.h>/<windows.h> on
- Windows, so stdafx.h comes first. _WINSOCKAPI_ stops the <windows.h>
- pulled in by MFC from including the old winsock.h, which would clash
- with the winsock2.h that 4DPlugin-JSON.h includes afterwards.
+ Windows, so stdafx.h comes first. Current MFC includes <winsock2.h>
+ itself (and refuses to build if _WINSOCKAPI_ is predefined), so the
+ later include in 4DPlugin-JSON.h is a no-op.
  */
 #ifndef WINVER
 #define WINVER 0x0501
 #endif
 #ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0501
-#endif
-#ifndef _WINSOCKAPI_
-#define _WINSOCKAPI_
 #endif
 #include "stdafx.h"
 #endif
