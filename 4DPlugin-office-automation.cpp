@@ -80,6 +80,12 @@ static id getApp(NSString *bundleIdentifier) {
 
 static NSURL *copyUrl(NSString *path) {
     
+    // CFURLCreateWithFileSystemPath must not be given NULL
+    // (stringWithUTF8String: returns nil for invalid UTF-8)
+    if(!path) {
+        return nil;
+    }
+    
     return (NSURL *)CFURLCreateWithFileSystemPath(kCFAllocatorDefault, (CFStringRef)path, kCFURLHFSPathStyle, false);
 }
 
@@ -189,6 +195,7 @@ static bool sb_tell_word_to_open(CUTF16String& _name, CUTF16String& _path,
 			// Get IDispatch interface for Automation...
 			IDispatch *pDispatch;
 			hr = pUnknown->QueryInterface(IID_IDispatch, (void **)&pDispatch);
+			pUnknown->Release(); // GetActiveObject returned an owned reference
 			if (SUCCEEDED(hr)) {
 				wdApp.AttachDispatch(pDispatch, TRUE);
 				isAvailable = true;
@@ -297,6 +304,7 @@ static bool sb_tell_excel_to_open(CUTF16String& _path,
 			// Get IDispatch interface for Automation...
 			IDispatch *pDispatch;
 			hr = pUnknown->QueryInterface(IID_IDispatch, (void **)&pDispatch);
+			pUnknown->Release(); // GetActiveObject returned an owned reference
 			if (SUCCEEDED(hr)) {
 				xlApp.AttachDispatch(pDispatch, TRUE);
 				isAvailable = true;
@@ -380,8 +388,10 @@ static bool sb_tell_excel_to_close(CUTF8String& _name, CUTF8String& _path) {
                     
                     [document closeSaving:ExcelSaveOptionsYes savingIn:url];
                     NSString *savePath = copyPath(url);
-                    _path = (const uint8_t *)[savePath UTF8String];
-                    [savePath release];
+                    if(savePath) {
+                        _path = (const uint8_t *)[savePath UTF8String];
+                        [savePath release];
+                    }
                     [url release];
                     
                     success = true;
@@ -419,6 +429,7 @@ static bool sb_tell_excel_to_close(CUTF16String& _name, CUTF16String& _path) {
 			// Get IDispatch interface for Automation...
 			IDispatch *pDispatch;
 			hr = pUnknown->QueryInterface(IID_IDispatch, (void **)&pDispatch);
+			pUnknown->Release(); // GetActiveObject returned an owned reference
 			if (SUCCEEDED(hr)) {
 				xlApp.AttachDispatch(pDispatch, TRUE);
 				isAvailable = true;
@@ -537,8 +548,10 @@ static bool sb_tell_word_to_close(CUTF8String& _name, CUTF8String& _path) {
                     
                     [document closeSaving:WordSaveOptionsYes savingIn:url];
                     NSString *savePath = copyPath(url);
-                    _path = (const uint8_t *)[savePath UTF8String];
-                    [savePath release];
+                    if(savePath) {
+                        _path = (const uint8_t *)[savePath UTF8String];
+                        [savePath release];
+                    }
                     [url release];
                     
                     success = true;
@@ -576,6 +589,7 @@ static bool sb_tell_word_to_close(CUTF16String& _name, CUTF16String& _path) {
 			// Get IDispatch interface for Automation...
 			IDispatch *pDispatch;
 			hr = pUnknown->QueryInterface(IID_IDispatch, (void **)&pDispatch);
+			pUnknown->Release(); // GetActiveObject returned an owned reference
 			if (SUCCEEDED(hr)) {
 				wdApp.AttachDispatch(pDispatch, TRUE);
 				isAvailable = true;
@@ -702,6 +716,14 @@ void office_automation(PA_PluginParameters params) {
     PA_ObjectRef status = PA_CreateObject();
     
     ob_set_b(status, L"success", false);
+    
+    /*
+     PluginMain's catch(...) would swallow an exception (e.g. an MFC
+     COleDispatchException from Office on Windows) before any value is
+     returned to 4D; catch it here so that the status object is always
+     returned.
+     */
+    try {
     
     if(options) {
         
@@ -838,6 +860,10 @@ void office_automation(PA_PluginParameters params) {
                 break;
         }
 
+    }
+    
+    } catch(...) {
+        ob_set_b(status, L"success", false);
     }
     
     PA_ReturnObject(params, status);
