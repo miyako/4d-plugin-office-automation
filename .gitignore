@@ -1,1 +1,11 @@
-office-automation/build/*
+.DS_Store
+build/
+Objs/
+/office-automation.dmg
+/office-automation.zip
+test/Data/Logs/
+test/Logs/
+test/userPreferences.*/
+test/Project/DerivedData/
+test/Plugins/office-automation.bundle/Contents/MacOS/
+test/Plugins/office-automation.bundle/Contents/_CodeSignature/
